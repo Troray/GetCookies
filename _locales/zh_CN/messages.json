@@ -1,0 +1,10 @@
+{
+   "appName": {
+      "message": "Weibo Cookie Helper",
+      "description": "扩展名称"
+   },
+   "description": {
+      "message": "获取 m.weibo.cn 的 Cookie，在微博页面一键获取并复制",
+      "description": "扩展描述"
+   }
+}

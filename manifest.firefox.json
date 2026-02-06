@@ -1,0 +1,67 @@
+{
+    "manifest_version": 2,
+    "name": "__MSG_appName__",
+    "version": "1.0.0",
+    "description": "__MSG_description__",
+    "author": "Troray",
+    "homepage_url": "https://github.com/Troray/GetCookies",
+    "developer": {
+        "name": "Troray",
+        "url": "https://github.com/Troray"
+    },
+    "default_locale": "zh_CN",
+    "permissions": [
+        "cookies",
+        "clipboardWrite",
+        "storage",
+        "tabs",
+        "*://*.weibo.com/*",
+        "*://*.weibo.cn/*"
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://weibo.com/*",
+                "*://www.weibo.com/*",
+                "*://s.weibo.com/*",
+                "*://d.weibo.com/*",
+                "*://passport.weibo.com/*"
+            ],
+            "js": [
+                "js/content.js"
+            ],
+            "css": [
+                "css/content.css"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "browser_action": {
+        "default_icon": {
+            "16": "images/logo16.png",
+            "32": "images/logo32.png",
+            "48": "images/logo48.png"
+        },
+        "default_popup": "popup.html",
+        "default_title": "__MSG_appName__"
+    },
+    "icons": {
+        "16": "images/logo16.png",
+        "32": "images/logo32.png",
+        "48": "images/logo48.png",
+        "128": "images/logo128.png"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "weibo-cookie-helper@troray.github.io",
+            "strict_min_version": "109.0",
+            "update_url": "https://raw.githubusercontent.com/Troray/GetCookies/main/updates.json"
+        }
+    }
+}

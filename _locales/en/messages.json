@@ -1,0 +1,10 @@
+{
+   "appName": {
+      "message": "Weibo Cookie Helper",
+      "description": "Extension name"
+   },
+   "description": {
+      "message": "Get cookies from m.weibo.cn with one click on Weibo pages",
+      "description": "Extension description"
+   }
+}

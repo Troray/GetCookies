@@ -1,0 +1,363 @@
+/**
+ * Weibo Cookie Helper - 样式表
+ * 悬浮按钮、Cookie 面板和通知的样式
+ */
+
+/* ============================================
+   悬浮按钮
+   ============================================ */
+#weibo-cookie-btn {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff8a00 0%, #e52e71 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(229, 46, 113, 0.4);
+  z-index: 2147483647;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  border: none;
+  outline: none;
+}
+
+#weibo-cookie-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 28px rgba(229, 46, 113, 0.5);
+}
+
+#weibo-cookie-btn:active {
+  transform: scale(0.95);
+}
+
+#weibo-cookie-btn.loading {
+  animation: pulse 1s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ============================================
+   Cookie 面板
+   ============================================ */
+#weibo-cookie-panel {
+  position: fixed;
+  left: 20px;
+  top: 90px;
+  width: 420px;
+  max-height: 80vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  z-index: 2147483646;
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 面板头部 */
+.wc-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #ff8a00 0%, #e52e71 100%);
+  color: white;
+}
+
+.wc-panel-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wc-panel-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.wc-panel-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 面板主体 */
+.wc-panel-body {
+  padding: 16px 20px;
+}
+
+.wc-cookie-box {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #495057;
+  max-height: 150px;
+  overflow-y: auto;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.wc-cookie-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wc-cookie-box::-webkit-scrollbar-thumb {
+  background: #ced4da;
+  border-radius: 3px;
+}
+
+/* 面板底部按钮 */
+.wc-panel-footer {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 16px;
+}
+
+.wc-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wc-btn-primary {
+  background: linear-gradient(135deg, #ff8a00 0%, #e52e71 100%);
+  color: white;
+}
+
+.wc-btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(229, 46, 113, 0.4);
+  transform: translateY(-1px);
+}
+
+.wc-btn-secondary {
+  background: #f1f3f4;
+  color: #5f6368;
+}
+
+.wc-btn-secondary:hover {
+  background: #e8eaed;
+}
+
+/* 详情表格 */
+.wc-panel-details {
+  padding: 0 20px 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.wc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.wc-table th {
+  background: #f8f9fa;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.wc-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e9ecef;
+  color: #6c757d;
+}
+
+.wc-table tr:hover td {
+  background: #f8f9fa;
+}
+
+.wc-name {
+  font-weight: 500;
+  color: #e52e71;
+}
+
+.wc-value {
+  font-family: monospace;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wc-domain {
+  color: #868e96;
+}
+
+/* ============================================
+   登录提示样式
+   ============================================ */
+.wc-panel-header-warning {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  color: #333;
+}
+
+.wc-login-prompt {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.wc-login-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.wc-login-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.wc-login-hint {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+/* ============================================
+   通知样式
+   ============================================ */
+#wc-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2147483647;
+  transform: translateX(120%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+#wc-notification.show {
+  transform: translateX(0);
+}
+
+.wc-notification-success {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.wc-notification-error {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+  color: white;
+}
+
+.wc-notification-warning {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  color: #333;
+}
+
+.wc-notification-info {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+/* ============================================
+   响应式适配
+   ============================================ */
+@media (max-width: 500px) {
+  #weibo-cookie-panel {
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+
+  #weibo-cookie-btn {
+    left: 15px;
+    top: 15px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+}
+
+/* ============================================
+   暗色模式支持
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  #weibo-cookie-panel {
+    background: #1e1e1e;
+  }
+
+  .wc-cookie-box {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #e0e0e0;
+  }
+
+  .wc-btn-secondary {
+    background: #333;
+    color: #e0e0e0;
+  }
+
+  .wc-btn-secondary:hover {
+    background: #404040;
+  }
+
+  .wc-table th {
+    background: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #404040;
+  }
+
+  .wc-table td {
+    border-color: #333;
+    color: #aaa;
+  }
+
+  .wc-table tr:hover td {
+    background: #2d2d2d;
+  }
+}

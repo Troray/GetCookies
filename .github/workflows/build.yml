@@ -1,0 +1,235 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.0.0, without "v" prefix)'
+        required: false
+        default: ''
+      create_release:
+        description: 'Create GitHub Release?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install web-ext
+        run: npm install -g web-ext
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [[ -n "${{ github.event.inputs.version }}" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=$(jq -r '.version' manifest.json)
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Update manifest versions
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          # Update Chrome manifest
+          jq --arg v "$VERSION" '.version = $v' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+          # Update Firefox manifest
+          jq --arg v "$VERSION" '.version = $v' manifest.firefox.json > manifest.tmp && mv manifest.tmp manifest.firefox.json
+          # Update popup.html version display
+          sed -i "s/Weibo Cookie Helper v[0-9]\+\.[0-9]\+\.[0-9]\+/Weibo Cookie Helper v${VERSION}/g" popup.html
+          echo "Updated all version references to v${VERSION}"
+
+      - name: Build Chrome extension
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          mkdir -p dist/chrome
+          
+          cp manifest.json dist/chrome/
+          cp background.js dist/chrome/
+          cp popup.html dist/chrome/
+          cp -r js dist/chrome/
+          cp -r css dist/chrome/
+          cp -r images dist/chrome/
+          cp -r _locales dist/chrome/
+          
+          cd dist/chrome
+          zip -r "../chrome.zip" . -x "*.DS_Store"
+
+      - name: Build Firefox extension
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          mkdir -p dist/firefox
+          
+          cp manifest.firefox.json dist/firefox/manifest.json
+          cp background.js dist/firefox/
+          cp popup.html dist/firefox/
+          cp -r js dist/firefox/
+          cp -r css dist/firefox/
+          cp -r images dist/firefox/
+          cp -r _locales dist/firefox/
+          
+          cd dist/firefox
+          zip -r "../firefox.zip" . -x "*.DS_Store"
+
+      - name: Sign Firefox extension with Mozilla
+        id: sign_firefox
+        if: |
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          
+          # Sign the extension using web-ext
+          cd dist/firefox
+          web-ext sign \
+            --api-key="${{ secrets.AMO_JWT_ISSUER }}" \
+            --api-secret="${{ secrets.AMO_JWT_SECRET }}" \
+            --channel=unlisted \
+            --artifacts-dir=../signed
+          
+          # Find the signed .xpi file and rename it
+          SIGNED_XPI=$(find ../signed -name "*.xpi" | head -1)
+          if [ -n "$SIGNED_XPI" ]; then
+            mv "$SIGNED_XPI" "../firefox.xpi"
+            echo "XPI_PATH=dist/firefox.xpi" >> $GITHUB_OUTPUT
+            echo "SIGNED=true" >> $GITHUB_OUTPUT
+            echo "✅ Firefox extension signed successfully!"
+          else
+            echo "SIGNED=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Signing may still be processing. Check AMO developer hub."
+          fi
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+
+      - name: Upload Chrome artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome.zip
+          path: dist/chrome.zip
+
+      - name: Upload Firefox ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox.zip
+          path: dist/firefox.zip
+
+      - name: Upload Firefox XPI artifact
+        if: steps.sign_firefox.outputs.SIGNED == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox.xpi
+          path: dist/firefox.xpi
+
+      - name: Create Release
+        id: create_release
+        if: |
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release v${{ steps.version.outputs.VERSION }}
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            dist/chrome.zip
+            dist/firefox.zip
+            dist/firefox.xpi
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Firefox updates.json
+        if: |
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          ADDON_ID="weibo-cookie-helper@troray.github.io"
+          REPO="${{ github.repository }}"
+          XPI_FILE="dist/firefox.xpi"
+          
+          # Calculate SHA256 hash of the signed XPI file
+          if [ -f "$XPI_FILE" ]; then
+            XPI_HASH=$(sha256sum "$XPI_FILE" | cut -d' ' -f1)
+            echo "XPI SHA256 hash: $XPI_HASH"
+          else
+            echo "Warning: XPI file not found, using placeholder hash"
+            XPI_HASH="placeholder"
+          fi
+          
+          cat > updates.json << EOF
+          {
+            "addons": {
+              "${ADDON_ID}": {
+                "updates": [
+                  {
+                    "version": "${VERSION}",
+                    "update_link": "https://github.com/${REPO}/releases/latest/download/firefox.xpi",
+                    "update_hash": "sha256:${XPI_HASH}"
+                  }
+                ]
+              }
+            }
+          }
+          EOF
+          
+          jq '.' updates.json > updates.tmp && mv updates.tmp updates.json
+          echo "Updated updates.json for version ${VERSION}"
+          cat updates.json
+
+      - name: Commit updates.json
+        if: |
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          
+          # Save the updated updates.json content
+          cp updates.json /tmp/updates.json
+          
+          # Fetch and checkout main branch
+          git fetch origin main
+          git checkout main
+          git pull origin main
+          
+          # Copy the updated updates.json back
+          cp /tmp/updates.json updates.json
+          
+          # Commit and push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add updates.json
+          git diff --staged --quiet || git commit -m "chore: update Firefox updates.json for v${VERSION}"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
