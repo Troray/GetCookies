@@ -59,7 +59,7 @@
     },
     "browser_specific_settings": {
         "gecko": {
-            "id": "weibo-cookie-helper@troray.github.io",
+            "id": "getcookies@troray.github.io",
             "strict_min_version": "109.0",
             "update_url": "https://raw.githubusercontent.com/Troray/GetCookies/main/updates.json"
         }

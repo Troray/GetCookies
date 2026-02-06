@@ -174,7 +174,7 @@ jobs:
           (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
         run: |
           VERSION="${{ steps.version.outputs.VERSION }}"
-          ADDON_ID="weibo-cookie-helper@troray.github.io"
+          ADDON_ID="getcookies@troray.github.io"
           REPO="${{ github.repository }}"
           XPI_FILE="dist/firefox.xpi"
           
