@@ -1,7 +1,13 @@
 {
-    "addons": {
-        "getcookies@troray.github.io": {
-            "updates": []
+  "addons": {
+    "getcookies@troray.github.io": {
+      "updates": [
+        {
+          "version": "1.0.0",
+          "update_link": "https://github.com/Troray/GetCookies/releases/latest/download/firefox.xpi",
+          "update_hash": "sha256:606c7586009d898c0afdeb1ceba4a8aef971ea912e11f17d220ee330e0420822"
         }
+      ]
     }
+  }
 }
