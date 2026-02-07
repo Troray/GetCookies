@@ -15,7 +15,7 @@
 
 ### Chrome / Edge
 
-1. 下载最新的 `https://github.com/Troray/GetCookies/releases/latest/download/chrome.zip`
+1. 从`Releases`下载最新的 `chrome.zip`
 2. 解压到任意文件夹
 3. 打开浏览器，访问 `chrome://extensions/`（Edge 为 `edge://extensions/`）
 4. 开启右上角的 **开发者模式**
@@ -24,14 +24,12 @@
 ### Firefox
 
 ##### 方式一
-1. 下载最新的 `https://github.com/Troray/GetCookies/releases/latest/download/firefox.zip`
+1. 从`Releases`下载最新的 `firefox.zip`
 2. 打开 Firefox，访问 `about:debugging#/runtime/this-firefox`
 3. 点击 **临时载入附加组件**
 4. 选择 zip 文件中的 `manifest.json`
 
-##### 方式二
-直接点击 https://github.com/Troray/GetCookies/releases/latest/download/firefox.xpi 进行安装
-
+##### 方式二.   直接点击 [Firefox.xpi](https://github.com/Troray/GetCookies/releases/latest/download/firefox.xpi) 进行安装
 
 ## 🚀 使用方法
 
